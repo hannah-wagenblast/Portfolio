@@ -1,0 +1,130 @@
+%1. Prepare a graph of surface tension versus ln(concentration) and determine the critical micelle concentration.
+
+
+clc 
+clear all
+c = [0
+-0.003991957
+0.685180531
+1.086684771
+1.370421552
+1.589635125
+2.649778226
+3.123566845
+3.424321285
+3.641148229
+3.808483054
+4.303303993
+4.560998839
+4.724170259
+4.838169014
+4.922801761
+4.988348785
+5.040711762]
+
+t = [69.52333333
+57.08333333
+52.39
+49.18
+47.53666667
+46.06
+39.3
+35.57666667
+33.54666667
+32.17
+30.81
+28.69333333
+28.25666667
+28.02
+28.47
+27.96
+28.17333333
+28.24]
+
+y_func= @(p,c) p(1).*c + p(2);
+guess = [0.35 5e5]
+y_model=fitnlm(c(5:12),t(5:12),y_func,guess)
+y_model2=fitnlm(c(13:18),t(13:18),y_func,guess)
+fit_y=feval(y_model,c)
+fit_y2=feval(y_model2,c)
+plot(c,t,'o',c,fit_y,'-',c,fit_y2,'--')
+ylabel('\gamma (mN m^-^1)')
+xlabel('ln[surfactant] (\muM)')
+
+
+
+
+%2. Prepare a graph of surface tension versus concentration, omitting all data at or above the
+critical micelle concentration. Fit this graph to equation 4. (You may wish to review the 5
+handout Curve Fitting in MATLAB.) Record the values and uncertainties for all fit
+parameters.
+
+
+
+clc
+clear all
+
+x = [0
+9.96E-01
+1.98E+00
+2.96E+00
+3.94E+00
+4.90E+00
+1.42E+01
+2.27E+01
+3.07E+01
+3.81E+01]' %uM 4.5082E-05
+
+St = [69.52333333
+57.08333333
+52.39
+49.18
+47.53666667
+46.06
+39.3
+35.57666667
+33.54666667
+32.17]' %mN/m 30.81
+
+Y = St*10^-3 %N/m
+
+S = @(p,x) p(1)-((8.314*298)./p(2))*log(1+p(3).*x)
+guess = [.0695 1 1]
+fit = fitnlm(x,St,S,guess)
+fity = feval(fit,x)
+plot(x,St,'o',x,fity,'-')
+
+
+
+%3. Convert ω to units of Å2 per molecule.
+
+%Angstrom
+
+clc
+clear all
+syms w sw Av A sA
+
+A=w./Av
+double(subs(A,{w,Av},{3.5147E25,6.023E23}))
+sA = sqrt(sw^2*diff(A,w)^2)
+double(subs(sA,{w,Av,sw},{3.5147*10^25,6.023*10^23,3.0458*10^23}))
+
+
+%4. Use Kad to calculate ΔadG°. Use a 1 M standard state.
+
+%G - Free energy
+
+clc 
+clear all
+
+syms G sG R T sK K
+
+G=-R*T*log(K)
+sG=sqrt(sK^2*diff(G,K)^2)
+double(subs(G,{R,T,K},{0.008315,298,5.352E6}))
+double(subs(sG,{R,T,K,sK},{0.008314,298,5.352E6,29.198}))
+
+
+
+
+
